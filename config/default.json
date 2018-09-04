@@ -1,0 +1,20 @@
+{
+  "plugins": {
+    "data-loader-api": {
+      "module": "./{{env.APP_SRC_DIR}}/server/plugins/data-loader-api"
+    },
+    "webapp": {
+      "module": "electrode-react-webapp",
+      "options": {
+        "pageTitle": "Product Lookup",
+        "paths": {
+          "/{args*}": {
+            "content": {
+              "module": "./{{env.APP_SRC_DIR}}/server/views/index-view"
+            }
+          }
+        }
+      }
+    }
+  }
+}

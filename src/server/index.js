@@ -12,6 +12,7 @@ const support = require("electrode-archetype-react-app/support");
 //
 const staticPathsDecor = require("electrode-static-paths");
 const electrodeServer = require("electrode-server");
+const catMemory = require("catbox-memory");
 
 //
 // sample to show electrode server startup events
@@ -29,11 +30,13 @@ function setupElectrodeServerEvents(emitter) {
 //
 
 const startServer = config => {
-  //
   const decor = staticPathsDecor();
   if (!config.listener) config.listener = setupElectrodeServerEvents;
-  return electrodeServer(config, [decor]);
-  //
+  const cache = [{
+    name: "keywordCache",
+    engine: catMemory
+  }];
+  return electrodeServer(config, [decor, cache]);
 };
 
 module.exports = () =>
