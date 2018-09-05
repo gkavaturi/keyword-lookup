@@ -81,10 +81,8 @@ class DataLoaderApi {
     return Promise.all([promiseS, promiseL]).then((values) => {
         const keywords = _flatten(values).reduce((comp, el) => {
           const elNormalized = el.toLowerCase();
-          // console.log(elNormalized + " " + !isNaN(elNormalized));
           return !(comp.includes(elNormalized) 
             && !isNaN(elNormalized) //to remove numbers
-            // && elNormalized.length > 2 //to remove most pronouns
             ) ? comp.concat(elNormalized) : comp;
         },[]);
         return {
@@ -148,10 +146,17 @@ class DataLoaderApi {
 
   getProductsByKeyword(request, reply) {
     const keywords = request.query.keywords || "";
-    const products = keywords.split(",").map((keyword) => {
+    const productIds = keywords.split(",").map((keyword) => {
       return this.productData[keyword];
-    });
-    reply(products);
+    })
+    const mergedProductsIds = _flatten(productIds).reduce((productIdStore, productId) => {
+      if (!productIdStore.includes(productId)) {
+        return productIdStore.concat(productId)
+      } else {
+        return productIdStore;
+      }
+    },[]);
+    reply(mergedProductsIds);
   }
 }
 
