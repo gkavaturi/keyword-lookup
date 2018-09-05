@@ -3,6 +3,7 @@ import Promise from "bluebird";
 import fetch from "node-fetch";
 import _get from "lodash/get";
 import _flatten from "lodash/flatten";
+import _mergeWith from "lodash/mergeWith";
 import WordPOS from "wordpos";
 
 const PRODUCT_API_URL = "http://api.walmartlabs.com/v1/items/";
@@ -55,6 +56,15 @@ class DataLoaderApi {
           description: "load data from file",
           tags: ["api", "file", "data", "loader"]
         }
+      },{
+        method: "GET",
+        path: "/api/get-product",
+        handler: this.getProductsByKeyword,
+        config: {
+          bind: this,
+          description: "get products matching keywords",
+          tags: ["api", "keyword", "product", "search"]
+        }
       }]);
     next();
   }
@@ -71,8 +81,11 @@ class DataLoaderApi {
     return Promise.all([promiseS, promiseL]).then((values) => {
         const keywords = _flatten(values).reduce((comp, el) => {
           const elNormalized = el.toLowerCase();
-          return !(comp.includes(elNormalized) && !isNaN(elNormalized)) ?
-            comp.concat(elNormalized) : comp;
+          // console.log(elNormalized + " " + !isNaN(elNormalized));
+          return !(comp.includes(elNormalized) 
+            && !isNaN(elNormalized) //to remove numbers
+            // && elNormalized.length > 2 //to remove most pronouns
+            ) ? comp.concat(elNormalized) : comp;
         },[]);
         return {
           [itemId]: keywords
@@ -80,6 +93,31 @@ class DataLoaderApi {
     }).catch((err) => {
       console.log(err);
     });
+  }
+
+  parseData(values) {
+    const flatValues = [].concat(values);
+  
+    return flatValues.reduce((parentStore, keywords) => {
+      const itemId = Object.keys(keywords)[0];
+      const values = keywords[itemId].reduce((localStore, localWord) => {
+        if (Array.isArray(localStore[localWord])) {
+          if (!localStore[localWord].includes(itemId)) {
+            localStore[localWord].push(itemId);
+          }
+        } else {
+          localStore[localWord] = [itemId];
+        };
+        return localStore;
+      },{});
+
+      return _mergeWith(parentStore, values,
+                         (currValue, srcValue) => {
+        if (Array.isArray(currValue)) {
+          return currValue.concat(srcValue);
+        }
+      });
+    }, {});
   }
 
   loadData(request, reply) {
@@ -90,7 +128,6 @@ class DataLoaderApi {
             return fetch(`${PRODUCT_API_URL}${itemId}?format=json&apiKey=${API_KEY}`)
               .then((res) => res.json())
               .then((resPayload) => {
-                console.log("returning for "+itemId);
                 resolve(this.extractKeywords(resPayload, itemId));
                 return null;
               }).catch((err) => {
@@ -103,9 +140,18 @@ class DataLoaderApi {
 
     Promise.all(productPromises)
       .then(function(values){
-        reply(_flatten(values));
-      })
+        this.productData = this.parseData(values);
+        reply(this.productData);
+      }.bind(this))
       .catch(function(error) { console.log(error); });
+  }
+
+  getProductsByKeyword(request, reply) {
+    const keywords = request.query.keywords || "";
+    const products = keywords.split(",").map((keyword) => {
+      return this.productData[keyword];
+    });
+    reply(products);
   }
 }
 
