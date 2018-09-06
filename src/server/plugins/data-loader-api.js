@@ -35,7 +35,7 @@ class DataLoaderApi {
 
   register(server, options, next) {
     server.route([{
-        method: "GET",
+        method: "POST",
         path: "/api/loadData",
         handler: this.loadData,
         config: {
@@ -110,7 +110,9 @@ class DataLoaderApi {
 
   loadData(request, reply) {
     const productPromises = [];
-    defaultProductIds.forEach((itemId, index) => {
+    const productIds = Array.isArray(request.payload) ? request.payload : defaultProductIds;
+
+    productIds.forEach((itemId, index) => {
         const productPromise = new Promise((resolve, reject) => {
           setTimeout(() => {
             return fetch(`${PRODUCT_API_URL}${itemId}?format=json&apiKey=${API_KEY}`)
@@ -156,8 +158,10 @@ class DataLoaderApi {
     const productIds = keywords.split(",").map((keyword) => {
       return productData.item[keyword];
     });
-
-    const mergedProductsIds = [].concat(productIds).reduce((productIdStore, productId) => {
+    const mergedProductsIds = [].concat.apply([], productIds).reduce((productIdStore, productId) => {
+      // console.log(productIdStore);
+      // console.log(productId);
+      console.log("\n");
       if (!productIdStore.includes(productId)) {
         return productIdStore.concat(productId)
       } else {
