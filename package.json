@@ -48,6 +48,7 @@
     "electrode-redux-router-engine": "^2.0.0",
     "electrode-server": "^1.0.0",
     "electrode-static-paths": "^1.0.0",
+    "electrode-ui-logger": "^1.1.2",
     "good": "^7.3.0",
     "good-console": "^7.1.0",
     "lodash": "^4.17.10",

@@ -1,7 +1,7 @@
 {
   "plugins": {
     "data-loader-api": {
-      "module": "./{{env.APP_SRC_DIR}}/server/plugins/data-loader-api"
+      "module": "./{{env.APP_SRC_DIR}}/server/plugins/product-data-api"
     },
     "webapp": {
       "module": "electrode-react-webapp",
