@@ -1,5 +1,3 @@
-"use strict";
-
 /*
  * Server unit test
  * Note that these should only test pure server code only.

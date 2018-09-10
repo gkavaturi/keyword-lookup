@@ -1,62 +1,25 @@
 import { combineReducers } from "redux";
+import { SEARCH_KEYWORD, UPLOAD_PRODUCT_IDS } from "../actions/index";
 
-const checkBox = (store, action) => {
-  if (action.type === "TOGGLE_CHECK") {
-    return {
-      checked: !store.checked
-    };
+const productStore = (state = {}, action) => {
+  switch (action.type) {
+    case SEARCH_KEYWORD:
+      return {
+        ...state,
+        keywords: action.keywords,
+        productIds: action.productIds
+      };
+    case UPLOAD_PRODUCT_IDS:
+      return {
+        ...state,
+        uploadProductIds: action.uploadProductIds,
+        uploadStatus: "Success"
+      };
+    default:
+      return state;
   }
-
-  return store || { checked: false };
-};
-
-const number = (store, action) => {
-  if (action.type === "INC_NUMBER") {
-    return {
-      value: store.value + 1
-    };
-  } else if (action.type === "DEC_NUMBER") {
-    return {
-      value: store.value - 1
-    };
-  }
-
-  return store || { value: 0 };
-};
-
-const username = (store, action) => {
-  if (action.type === "INPUT_NAME") {
-    return {
-      value: action.value
-    };
-  }
-
-  return store || { value: "" };
-};
-
-const textarea = (store, action) => {
-  if (action.type === "INPUT_TEXT_AREA") {
-    return {
-      value: action.value
-    };
-  }
-
-  return store || { value: "" };
-};
-
-const selectedOption = (store, action) => {
-  if (action.type === "SELECT_OPTION") {
-    return {
-      value: action.value
-    };
-  }
-  return store || { value: "0-13" };
 };
 
 export default combineReducers({
-  checkBox,
-  number,
-  username,
-  textarea,
-  selectedOption
+  productStore
 });

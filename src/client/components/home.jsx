@@ -1,31 +1,11 @@
-/*
- * This is a demo component the Eletrode app generator included
- * to show using Milligram CSS lib and Redux
- * store for display HTML elements and managing states.
- *
- * To start your own app, please replace or remove these files:
- *
- * - this file (home.jsx)
- * - demo-buttons.jsx
- * - demo-pure-states.jsx
- * - demo-states.jsx
- * - reducers/index.jsx
- * - styles/*.css
- *
- */
-
 import React from "react";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 import "../styles/raleway.css";
-import custom from "../styles/custom.css"; // eslint-disable-line no-unused-vars
-import electrodePng from "../images/electrode.png";
-import DemoStates from "./demo-states";
-import DemoPureStates from "./demo-pure-states";
-import { DemoButtons } from "./demo-buttons";
+import customStyle from "../styles/custom.css"; // eslint-disable-line no-unused-vars
+import homeStyle from "../styles/home.css"; // eslint-disable-line no-unused-vars
 import { Nav } from "./nav";
-//
-import Notifications from "react-notify-toast";
-//
+import { searchKeyword } from "../actions";
 
 class Home extends React.Component {
   constructor(props) {
@@ -34,46 +14,43 @@ class Home extends React.Component {
 
   render() {
     return (
-      <div styleName={"custom.container"}>
+      <div styleName={"customStyle.container"}>
         <Nav {...this.props} />
-
-        {/**/}
-        <Notifications />
-        {/**/}
-
-        <section styleName={"custom.header"}>
-          <h2>
-            <span>Hello from </span>
-            <a href="https://github.com/electrode-io">
-              {"Electrode"}
-              <img src={electrodePng} />
-            </a>
-          </h2>
-        </section>
-
-        <div styleName={"custom.docs-section"}>
-          <DemoStates />
-        </div>
-
-        <div styleName={"custom.docs-section"}>
-          <DemoPureStates />
-        </div>
-
-        <div styleName={"custom.docs-section"}>
-          <DemoButtons />
-        </div>
+        <form>
+            <fieldset styleName={"homeStyle.search-container"}>
+              <input
+                type="text"
+                placeholder="Search using keywords"
+                id="keywordField"
+                styleName={"homeStyle.search-field"}
+                value={this.props.keywords}
+                onChange={event => {
+                  this.props.searchKeyword(event.target.value);
+                }}
+              />
+            </fieldset>
+          </form>
       </div>
     );
   }
 }
 
-Home.propTypes = {};
-
-const mapStateToProps = () => {
-  return {};
+Home.propTypes = {
+  keywords: PropTypes.string,
+  getProducts: PropTypes.func.isRequired
 };
+
+const mapStateToProps = state => {
+  return {
+    keywords: state.keywords
+  };
+};
+
+const mapDispatchToProps = dispatch => ({
+  searchKeyword: (keywords) => dispatch(searchKeyword(keywords))
+});
 
 export default connect(
   mapStateToProps,
-  dispatch => ({ dispatch })
+  mapDispatchToProps
 )(Home);

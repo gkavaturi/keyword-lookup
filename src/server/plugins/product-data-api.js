@@ -7,7 +7,7 @@ import _get from "lodash/get";
 import _flatten from "lodash/flatten";
 import _mergeWith from "lodash/mergeWith";
 import WordPos from "wordpos";
-import logger from "electrode-ui-logger";
+// import logger from "electrode-ui-logger";
 
 import defaultProductIds from "../data/sample-ids.json";
 import {
@@ -19,7 +19,7 @@ import {
   ONE_DAY
 } from "../utils/constants.js";
 
-class DataLoaderApi {
+class ProductDataApi {
   constructor() {
     fetch.Promise = Promise;
 
@@ -33,16 +33,16 @@ class DataLoaderApi {
     };
     this.wordpos = new WordPos();
     this.cache = new Catbox.Client(catboxMemory, {partition: "keywords"});
-    this.cache.start().then(() => {
-      logger.info("Cache started");
+    this.cache.start(() => {
+      return this.loadData(defaultProductIds);
     });
   }
 
   register(server, options, next) {
     server.route([{
         method: "POST",
-        path: "/api/loadData",
-        handler: this.loadData,
+        path: "/api/loadProductData",
+        handler: this.handleLoadData,
         config: {
           bind: this,
           description: "load data from file",
@@ -106,15 +106,23 @@ class DataLoaderApi {
 
       return _mergeWith(parentStore, localValues,
                          (currValue, srcValue) => {
+        if (Array.isArray(currValue)) {
           return currValue.concat(srcValue);
+        }
+        return currValue;
       });
     }, {});
   }
 
-  loadData(request, reply) {
-    const productPromises = [];
+  handleLoadData(request, reply) {
     const productIds = Array.isArray(request.payload) ? request.payload : defaultProductIds;
+    return this.loadData(productIds).then((payload) => {
+      reply(payload);
+    });
+  }
 
+  loadData(productIds = []) {
+    const productPromises = [];
     productIds.forEach((itemId, index) => {
         const productPromise = new Promise((resolve, reject) => {
           //create artifical delay to go around product api rate limiting
@@ -133,31 +141,31 @@ class DataLoaderApi {
         productPromises.push(productPromise);
     });
 
-    Promise.all(productPromises)
+    return Promise.all(productPromises)
       .then((values) => {
         const productData = this.parseData(values);
         const responsePayload = {
           status: SUCCESS_STATUS,
+          error: "",
           payload: productData
         };
-
         //set 1 day cache for product data
-        this.cache
+        return this.cache
           .set({segment: "keywords", id: "keywordStore"}, productData, ONE_DAY)
           .then(() => {
-            logger.info("Cache set for keyword store");
-            reply(responsePayload);
+            // console.log("Cache set for keyword store");
+            return (responsePayload);
           })
           .catch((err) => {
-            reply({
+            return ({
               status: ERROR_STATUS,
               error: `Unable to set cache for keyword store ${err}`
             });
           });
       })
       .catch((err) => {
-        logger.error(err);
-        reply({
+        // logger.error(err);
+        return ({
           status: ERROR_STATUS,
           error: `Unable to populate keyword store ${err}`
         });
@@ -174,27 +182,27 @@ class DataLoaderApi {
         error: "Cache for keyword store is empty",
         productIds: []
       });
+    } else {
+      const productIds = keywords.split(",").map((keyword) => {
+        return productData.item[keyword];
+      });
+
+      const mergedProductIds = [].concat(...productIds)
+        .reduce((productIdStore, productId) => {
+          if (!productIdStore.includes(productId)) {
+            return productIdStore.concat(productId);
+          } else {
+            return productIdStore;
+          }
+        }, []);
+
+      reply({
+        status: SUCCESS_STATUS,
+        error: "",
+        productIds: mergedProductIds
+      });
     }
-
-    const productIds = keywords.split(",").map((keyword) => {
-      return productData.item[keyword];
-    });
-
-    const mergedProductIds = [].concat([], productIds)
-      .reduce((productIdStore, productId) => {
-        if (!productIdStore.includes(productId)) {
-          return productIdStore.concat(productId);
-        } else {
-          return productIdStore;
-        }
-      }, []);
-
-    reply({
-      status: SUCCESS_STATUS,
-      error: "",
-      productIds: mergedProductIds
-    });
   }
 }
 
-export default new DataLoaderApi();
+export default new ProductDataApi();

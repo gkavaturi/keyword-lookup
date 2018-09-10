@@ -15,11 +15,8 @@ export class Nav extends Component {
         <li styleName={currentTab === "" ? "navStyle.active" : ""}>
           <Link to="/">Home</Link>
         </li>
-        <li styleName={currentTab === "demo1" ? "navStyle.active" : ""}>
-          <Link to="/demo1">Demo1</Link>
-        </li>
-        <li styleName={currentTab === "demo2" ? "navStyle.active" : ""}>
-          <Link to="/demo2">Demo2</Link>
+        <li styleName={currentTab === "upload" ? "navStyle.active" : ""}>
+          <Link to="/upload">Upload</Link>
         </li>
       </ul>
     );
