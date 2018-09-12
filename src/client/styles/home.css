@@ -1,0 +1,15 @@
+.search-field {
+  display: block;
+  height: 72px;
+  width: 50%;
+  margin: auto;
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 0 25px;
+  font-size: 32px;
+}
+
+.search-container {
+  border: 0;
+  margin: 35px 0;
+}

@@ -23,7 +23,6 @@ const routes = [
   {
     path: "/",
     component: withRouter(Root),
-    init: "./init-top",
     routes: [
       {
         path: "/",

@@ -1,24 +1,40 @@
+/* eslint-disable */
 import { combineReducers } from "redux";
-import { SEARCH_KEYWORD, UPLOAD_PRODUCT_IDS } from "../actions/index";
+import { SEARCH_KEYWORD, UPDATE_KEYWORD, UPLOAD_PRODUCT_IDS } from "../actions/index";
 
-const productStore = (state = {}, action) => {
+const defaultState = {
+  keywords: "",
+  productIds: []
+};
+
+const productStore = (state = defaultState, action) => {
   switch (action.type) {
     case SEARCH_KEYWORD:
       return {
         ...state,
-        keywords: action.keywords,
         productIds: action.productIds
       };
-    case UPLOAD_PRODUCT_IDS:
+    case UPDATE_KEYWORD:
       return {
         ...state,
-        uploadProductIds: action.uploadProductIds,
-        uploadStatus: "Success"
+        keywords: action.keywords
       };
     default:
       return state;
   }
 };
+
+// const uploadProductStore = (state = {}, action) => {
+//   switch (action.type) {
+//     case UPLOAD_PRODUCT_IDS:
+//       return {
+//         ...state,
+//         uploadStatus: "Success"
+//       };
+//     default:
+//       return state;
+//   }
+// };
 
 export default combineReducers({
   productStore

@@ -6,9 +6,10 @@ import React from "react";
 import { render, hydrate } from "react-dom";
 import { routes } from "./routes";
 import { BrowserRouter } from "react-router-dom";
-import { createStore } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import rootReducer from "./reducers";
+import thunk from "redux-thunk";
 import { renderRoutes } from "react-router-config";
 
 //
@@ -33,7 +34,7 @@ require.ensure(
 // Redux configure store with Hot Module Reload
 //
 const configureStore = initialState => {
-  const store = createStore(rootReducer, initialState);
+  const store = createStore(rootReducer, initialState, applyMiddleware(thunk));
 
   if (module.hot) {
     module.hot.accept("./reducers", () => {

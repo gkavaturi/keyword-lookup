@@ -33,8 +33,11 @@ class ProductDataApi {
     };
     this.wordpos = new WordPos();
     this.cache = new Catbox.Client(catboxMemory, {partition: "keywords"});
-    this.cache.start(() => {
-      return this.loadData(defaultProductIds);
+    this.cache.start();
+    this.cache.start().then(() => {
+      this.loadData(defaultProductIds);
+    }).catch(err => {
+      throw err;
     });
   }
 
@@ -70,7 +73,7 @@ class ProductDataApi {
     const promiseS = shortDesc ? this.wordpos.getNouns(shortDesc) : [];
     const promiseL = longDesc ? this.wordpos.getNouns(longDesc) : [];
 
-    return Promise.all([promiseS, promiseL]).then((values) => {
+    return Promise.all([promiseS, promiseL]).then(values => {
         const keywords = _flatten(values).reduce((comp, el) => {
           const elNormalized = el.toLowerCase();
           return !(comp.includes(elNormalized)
@@ -80,7 +83,7 @@ class ProductDataApi {
         return {
           [itemId]: keywords
         };
-    }).catch((err) => {
+    }).catch(err => {
       throw err;
     });
   }
@@ -116,8 +119,13 @@ class ProductDataApi {
 
   handleLoadData(request, reply) {
     const productIds = Array.isArray(request.payload) ? request.payload : defaultProductIds;
-    return this.loadData(productIds).then((payload) => {
+    return this.loadData(productIds).then(payload => {
       reply(payload);
+    }).catch(err => {
+      reply({
+          status: ERROR_STATUS,
+          error: `Unable to process post request ${err}`
+        });
     });
   }
 
@@ -128,11 +136,11 @@ class ProductDataApi {
           //create artifical delay to go around product api rate limiting
           setTimeout(() => {
             return fetch(`${PRODUCT_API_URL}${itemId}?format=json&apiKey=${PRODUCT_API_KEY}`)
-              .then((res) => res.json())
-              .then((resPayload) => {
+              .then(res => res.json())
+              .then(resPayload => {
                 resolve(this.extractKeywords(resPayload, itemId));
                 return null;
-              }).catch((err) => {
+              }).catch(err => {
                 reject(err);
                 return null;
               });
@@ -142,7 +150,7 @@ class ProductDataApi {
     });
 
     return Promise.all(productPromises)
-      .then((values) => {
+      .then(values => {
         const productData = this.parseData(values);
         const responsePayload = {
           status: SUCCESS_STATUS,
@@ -174,35 +182,34 @@ class ProductDataApi {
 
   async getProductsByKeyword(request, reply) {
     const keywords = request.query.keywords || "";
-    const productData = await this.cache.get({segment: "keywords", id: "keywordStore"});
+    this.cache.get({segment: "keywords", id: "keywordStore"})
+      .then((productData) => {
+        const productIds = keywords.split(",").map((keyword) => {
+          return _get(productData, `item[${keyword}]`);
+        });
 
-    if (!productData) {
-      reply({
-        status: ERROR_STATUS,
-        error: "Cache for keyword store is empty",
-        productIds: []
-      });
-    } else {
-      const productIds = keywords.split(",").map((keyword) => {
-        return productData.item[keyword];
-      });
+        const mergedProductIds = [].concat(...productIds)
+          .reduce((productIdStore, productId) => {
+            if (!productIdStore.includes(productId)) {
+              return productIdStore.concat(productId);
+            } else {
+              return productIdStore;
+            }
+          }, []);
 
-      const mergedProductIds = [].concat(...productIds)
-        .reduce((productIdStore, productId) => {
-          if (!productIdStore.includes(productId)) {
-            return productIdStore.concat(productId);
-          } else {
-            return productIdStore;
-          }
-        }, []);
-
-      reply({
-        status: SUCCESS_STATUS,
-        error: "",
-        productIds: mergedProductIds
+        reply({
+          status: SUCCESS_STATUS,
+          error: "",
+          productIds: mergedProductIds
+        });
+      }).catch((err) => {
+        reply({
+          status: ERROR_STATUS,
+          error: `Cache for keyword store is empty ${err}`,
+          productIds: []
+        });
       });
     }
-  }
 }
 
 export default new ProductDataApi();

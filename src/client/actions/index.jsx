@@ -4,24 +4,37 @@ export const SEARCH_KEYWORD = "SEARCH_KEYWORD";
 
 export const UPLOAD_PRODUCT_IDS = "UPLOAD_PRODUCT_IDS";
 
+export const UPDATE_KEYWORD = "UPDATE_KEYWORD";
+
 const SEARCH_URL = "/api/get-product";
 
 export const inputProductIds = value => {
   return {
-    type: "UPLOAD_PRODUCT_IDS",
+    type: UPLOAD_PRODUCT_IDS,
     value
   };
 };
 
-export const searchKeyword = value => {
-  return {
-    type: SEARCH_KEYWORD,
-    value
+export const updateKeywords = (value) => {
+  return (dispatch) => {
+    dispatch({
+      type: UPDATE_KEYWORD,
+      value
+    });
+  };
+};
+
+export const setKeyWords = (keywords) => {
+ return (dispatch) => {
+    dispatch({
+      type: UPDATE_KEYWORD,
+      keywords
+    });
   };
 };
 
 export const fetchProducts = (keywords) => {
-   return (dispatch) => {
+ return (dispatch) => {
     fetch(`${SEARCH_URL}?keywords=${keywords}`)
       .then((response) => {
         dispatch({
@@ -36,4 +49,10 @@ export const fetchProducts = (keywords) => {
         });
       });
   };
+};
+
+export default {
+  updateKeywords,
+  setKeyWords,
+  fetchProducts
 };

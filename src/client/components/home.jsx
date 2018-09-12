@@ -1,35 +1,48 @@
+/* eslint-disable */
 import React from "react";
 import { connect } from "react-redux";
+import { withRouter } from "react-router";
 import PropTypes from "prop-types";
 import "../styles/raleway.css";
 import customStyle from "../styles/custom.css"; // eslint-disable-line no-unused-vars
 import homeStyle from "../styles/home.css"; // eslint-disable-line no-unused-vars
 import { Nav } from "./nav";
-import { searchKeyword } from "../actions";
+import { fetchProducts, setKeyWords } from "../actions";
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleUpdateKeywords = this.handleUpdateKeywords.bind(this);
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    this.props.triggerSearchKeywords(this.props.keywords);
+  }
+
+  handleUpdateKeywords(event) {
+    this.props.triggerUpdateKeywords(event.target.value);
   }
 
   render() {
     return (
       <div styleName={"customStyle.container"}>
         <Nav {...this.props} />
-        <form>
-            <fieldset styleName={"homeStyle.search-container"}>
-              <input
-                type="text"
-                placeholder="Search using keywords"
-                id="keywordField"
-                styleName={"homeStyle.search-field"}
-                value={this.props.keywords}
-                onChange={event => {
-                  this.props.searchKeyword(event.target.value);
-                }}
-              />
-            </fieldset>
-          </form>
+        <form onSubmit={this.handleSubmit}>
+          <fieldset styleName={"homeStyle.search-container"}>
+            <input
+              type="text"
+              placeholder="Search using keywords"
+              id="keywordField"
+              styleName={"homeStyle.search-field"}
+              value={this.props.keywords}
+              onChange={event => {
+                  this.props.triggerUpdateKeywords(event.target.value);
+              }}
+            />
+          </fieldset>
+        </form>
       </div>
     );
   }
@@ -37,20 +50,22 @@ class Home extends React.Component {
 
 Home.propTypes = {
   keywords: PropTypes.string,
-  getProducts: PropTypes.func.isRequired
+  triggerUpdateKeywords: PropTypes.func.isRequired,
+  triggerSearchKeywords: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => {
   return {
-    keywords: state.keywords
-  };
+    ...state.productStore
+  }
 };
 
 const mapDispatchToProps = dispatch => ({
-  searchKeyword: (keywords) => dispatch(searchKeyword(keywords))
+  triggerUpdateKeywords: (keywords) => dispatch(setKeyWords(keywords)),
+  triggerSearchKeywords: (keywords) => dispatch(fetchProducts(keywords))
 });
 
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
   mapDispatchToProps
-)(Home);
+)(Home));
