@@ -7,7 +7,6 @@ import _get from "lodash/get";
 import _flatten from "lodash/flatten";
 import _mergeWith from "lodash/mergeWith";
 import WordPos from "wordpos";
-// import logger from "electrode-ui-logger";
 
 import defaultProductIds from "../data/sample-ids.json";
 import {
@@ -32,6 +31,7 @@ class ProductDataApi {
       version: "1.0.0"
     };
     this.wordpos = new WordPos();
+    this.productStore = {};
     this.cache = new Catbox.Client(catboxMemory, {partition: "keywords"});
     this.cache.start();
     this.cache.start().then(() => {
@@ -138,11 +138,10 @@ class ProductDataApi {
             return fetch(`${PRODUCT_API_URL}${itemId}?format=json&apiKey=${PRODUCT_API_KEY}`)
               .then(res => res.json())
               .then(resPayload => {
+                this.productStore[itemId] = resPayload;
                 resolve(this.extractKeywords(resPayload, itemId));
-                return null;
               }).catch(err => {
                 reject(err);
-                return null;
               });
           }, API_TIMER_INVERVAL * index);
         });
@@ -157,11 +156,10 @@ class ProductDataApi {
           error: "",
           payload: productData
         };
-        //set 1 day cache for product data
+        //set 1 day cache for product id data
         return this.cache
           .set({segment: "keywords", id: "keywordStore"}, productData, ONE_DAY)
           .then(() => {
-            // console.log("Cache set for keyword store");
             return (responsePayload);
           })
           .catch((err) => {
@@ -172,7 +170,6 @@ class ProductDataApi {
           });
       })
       .catch((err) => {
-        // logger.error(err);
         return ({
           status: ERROR_STATUS,
           error: `Unable to populate keyword store ${err}`
@@ -182,27 +179,32 @@ class ProductDataApi {
 
   async getProductsByKeyword(request, reply) {
     const keywords = request.query.keywords || "";
-    let productData = {};
+    const sendLongProductData = request.query.type === "long" ? true : false;
+    let productIdData = {};
     try {
-      productData = await this.cache.get({segment: "keywords", id: "keywordStore"});
-    } catch(err) {
+      productIdData = await this.cache.get({segment: "keywords", id: "keywordStore"});
+    } catch (err) {
       reply({
         status: ERROR_STATUS,
-        error: "Cache for keyword store is empty",
+        error: `Cache for keyword store is empty ${err}`,
         productIds: []
       });
     }
-    
+
     const productIds = keywords.split(",").map((keyword) => {
-        return productData.item[keyword];
-      });
+        return productIdData.item[keyword];
+    });
 
     const mergedProductIds = [].concat(...productIds)
-      .reduce((productIdStore, productId) => {
-        if (!productIdStore.includes(productId)) {
-          return productIdStore.concat(productId);
+      .reduce((productStore, productId) => {
+        if (!productStore.includes(productId)) {
+          if (sendLongProductData) {
+            return productStore.concat({[productId]: this.productStore[productId]});
+          } else {
+            return productStore.concat(productId);
+          }
         } else {
-          return productIdStore;
+          return productStore;
         }
       }, []);
 

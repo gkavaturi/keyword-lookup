@@ -33,7 +33,7 @@ class Home extends React.Component {
           <fieldset styleName={"homeStyle.search-container"}>
             <input
               type="text"
-              placeholder="Search using keywords"
+              placeholder=""
               id="keywordField"
               styleName={"homeStyle.search-field"}
               value={this.props.keywords}
