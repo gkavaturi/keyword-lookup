@@ -182,34 +182,36 @@ class ProductDataApi {
 
   async getProductsByKeyword(request, reply) {
     const keywords = request.query.keywords || "";
-    this.cache.get({segment: "keywords", id: "keywordStore"})
-      .then((productData) => {
-        const productIds = keywords.split(",").map((keyword) => {
-          return _get(productData, `item[${keyword}]`);
-        });
-
-        const mergedProductIds = [].concat(...productIds)
-          .reduce((productIdStore, productId) => {
-            if (!productIdStore.includes(productId)) {
-              return productIdStore.concat(productId);
-            } else {
-              return productIdStore;
-            }
-          }, []);
-
-        reply({
-          status: SUCCESS_STATUS,
-          error: "",
-          productIds: mergedProductIds
-        });
-      }).catch((err) => {
-        reply({
-          status: ERROR_STATUS,
-          error: `Cache for keyword store is empty ${err}`,
-          productIds: []
-        });
+    let productData = {};
+    try {
+      productData = await this.cache.get({segment: "keywords", id: "keywordStore"});
+    } catch(err) {
+      reply({
+        status: ERROR_STATUS,
+        error: "Cache for keyword store is empty",
+        productIds: []
       });
     }
+    
+    const productIds = keywords.split(",").map((keyword) => {
+        return productData.item[keyword];
+      });
+
+    const mergedProductIds = [].concat(...productIds)
+      .reduce((productIdStore, productId) => {
+        if (!productIdStore.includes(productId)) {
+          return productIdStore.concat(productId);
+        } else {
+          return productIdStore;
+        }
+      }, []);
+
+    reply({
+      status: SUCCESS_STATUS,
+      error: "",
+      productIds: mergedProductIds
+    });
+  }
 }
 
 export default new ProductDataApi();
