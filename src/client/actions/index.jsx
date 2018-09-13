@@ -17,32 +17,31 @@ export const updateProductIds = productIds => {
       type: UPDATE_PRODUCT_IDS,
       productIds
     });
-  }
-}
+  };
+};
 
 export const uploadProducts = value => {
   const productIds = value.split(/,|\s+|\n/);
-  console.log(productIds);
   return (dispatch) => {
-    fetch(UPLOAD_URL,{ 
-        method: 'post',
+    fetch(UPLOAD_URL, {
+        method: "POST",
         body: JSON.stringify(productIds),
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" }
     })
-      .then(res => res.json())
-      .then(body => {
-        dispatch({
-          type: UPLOAD_PRODUCT,
-          keywords: body.payload,
-          status: body.status
-        });
-      })
-      .catch(error => {
-        dispatch({
-          type: UPLOAD_PRODUCT,
-          status: body.status
-        });
+    .then(res => res.json())
+    .then(body => {
+      dispatch({
+        type: UPLOAD_PRODUCT,
+        keywords: body.payload,
+        status: body.status
       });
+    })
+    .catch(error => {
+      dispatch({
+        type: UPLOAD_PRODUCT,
+        status: error
+      });
+    });
   };
 };
 

@@ -18,11 +18,10 @@ class Upload extends Component {
 
   uploadSuccessMsg() {
     const msg = this.props.status === "Success" ? "Upload Success!!" : "";
-    return (<p className="upload-status">{msg}</p>)
+    return (<p className="upload-status">{msg}</p>);
   }
 
   render() {
-    const { dispatch } = this.props;
     return (
       <div className="upload-container">
         <Nav {...this.props} />
