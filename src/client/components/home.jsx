@@ -14,15 +14,15 @@ class Home extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleUpdateKeywords = this.handleUpdateKeywords.bind(this);
     this.state = {
-      hasSearched: false
+      searchActive: false
     };
   }
 
   handleSubmit(event) {
     event.preventDefault();
     this.props.triggerSearchKeywords(this.props.keywords);
-    if (!this.state.hasSearched) {
-      this.setState({ hasSearched: true });
+    if (!this.state.searchActive) {
+      this.setState({ searchActive: true });
     }
   }
 
@@ -36,8 +36,8 @@ class Home extends React.Component {
         <div className="product-container group" key={index}>
           <h3 className="product-title">{product.name}</h3>
           <div className="product-desc">
-            <div className="product-image product-desc-section">
-              <img src="" alt={`${product.name}-image`} src={product.thumbnailImage}/>
+            <div className="product-image-wrapper product-desc-section">
+              <img className="product-image" src="" alt={`${product.name}-image`} src={product.thumbnailImage}/>
             </div>
             <div className="product-desc-short product-desc-section">
               <p>{product.shortDescription}</p>
@@ -48,14 +48,21 @@ class Home extends React.Component {
     }
   }
 
+  renderSubheading() {
+    if (this.state.searchActive && this.props.products) {
+      return (<div className="sub-heading">
+        <h4>Showing {this.props.products.length} results</h4>
+      </div>);
+    }
+  }
+
   render() {
     let searchFieldClass = "search-field-small";
-    let productContainerClass = "product-store-container-border";
-
-    if(!this.state.hasSearched) {
+    
+    if(!this.state.searchActive) {
       searchFieldClass = "search-field-large";
-      productContainerClass = "";
     }
+    
     return (
       <div className="home-container">
         <form className="search-form" autoComplete="false" onSubmit={this.handleSubmit}>
@@ -65,6 +72,7 @@ class Home extends React.Component {
               type="text"
               placeholder=""
               id="keywordField"
+              placeholder="Search using keywords"
               className={`search-field ${searchFieldClass}`}
               value={this.props.keywords}
               onChange={event => {
@@ -73,7 +81,8 @@ class Home extends React.Component {
             />
           </div>
         </form>
-        <div className={`product-store-container ${productContainerClass}`}>
+        {this.renderSubheading()}
+        <div className="product-store-container">
           {this.renderProducts()}
         </div>
       </div>

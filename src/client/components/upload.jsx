@@ -20,14 +20,14 @@ class Demo1 extends Component {
   render() {
     const { dispatch } = this.props;
     return (
-      <div styleName={"custom.container"}>
+      <div className={"custom.container"}>
         <Nav {...this.props} />
         <form>
-          <div styleName={"uploadStyle.container"}>
+          <div className={"uploadStyle.container"}>
             <textarea
               placeholder="Enter comma or space separated product ids"
               id="commentField"
-              styleName={"uploadStyle.product-input"}
+              className={"uploadStyle.product-input"}
               value={this.props.textarea}
               onChange={event => dispatch(inputTextarea(event.target.value))}
             />
