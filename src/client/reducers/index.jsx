@@ -4,7 +4,7 @@ import { SEARCH_KEYWORD, UPDATE_KEYWORD, UPLOAD_PRODUCT_IDS } from "../actions/i
 
 const defaultState = {
   keywords: "",
-  productIds: []
+  products: []
 };
 
 const productStore = (state = defaultState, action) => {
@@ -12,7 +12,7 @@ const productStore = (state = defaultState, action) => {
     case SEARCH_KEYWORD:
       return {
         ...state,
-        productIds: action.productIds
+        products: action.products
       };
     case UPDATE_KEYWORD:
       return {

@@ -15,15 +15,6 @@ export const inputProductIds = value => {
   };
 };
 
-export const updateKeywords = (value) => {
-  return (dispatch) => {
-    dispatch({
-      type: UPDATE_KEYWORD,
-      value
-    });
-  };
-};
-
 export const setKeyWords = (keywords) => {
  return (dispatch) => {
     dispatch({
@@ -35,14 +26,15 @@ export const setKeyWords = (keywords) => {
 
 export const fetchProducts = (keywords) => {
  return (dispatch) => {
-    fetch(`${SEARCH_URL}?keywords=${keywords}`)
-      .then((response) => {
+    fetch(`${SEARCH_URL}?keywords=${keywords}&type=long`)
+      .then(res => res.json())
+      .then(body => {
         dispatch({
           type: SEARCH_KEYWORD,
-          products: response.productIds
+          products: body.products
         });
       })
-      .catch((error) => {
+      .catch(error => {
         dispatch({
           type: SEARCH_KEYWORD,
           error
@@ -52,7 +44,6 @@ export const fetchProducts = (keywords) => {
 };
 
 export default {
-  updateKeywords,
   setKeyWords,
   fetchProducts
 };

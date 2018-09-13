@@ -1,3 +1,4 @@
+/* eslint-disable */
 import Hapi from "hapi";
 import sinon from "sinon";
 import { expect } from "chai";
@@ -77,6 +78,8 @@ describe("Validate product data api", () => {
       };
 
       server.inject(request).then(res => {
+        console.log("\n\n");
+        console.log(res.payload);
         expect(JSON.parse(res.payload)).to.deep.equal(getProductsMock);
         done();
       }).catch(err => {

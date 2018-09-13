@@ -187,31 +187,37 @@ class ProductDataApi {
       reply({
         status: ERROR_STATUS,
         error: `Cache for keyword store is empty ${err}`,
-        productIds: []
+        products: []
       });
     }
 
-    const productIds = keywords.split(",").map((keyword) => {
-        return productIdData.item[keyword];
-    });
+    const productIds = keywords.split(/,|\s/).reduce((cachedProductIds, keyword) => {
+      const product = productIdData.item[keyword];
+      if (product) {
+        cachedProductIds.push(product);
+      }
+      return cachedProductIds;
+    }, []);
 
     const mergedProductIds = [].concat(...productIds)
       .reduce((productStore, productId) => {
-        if (!productStore.includes(productId)) {
+        if (!productStore[productId]) {
           if (sendLongProductData) {
-            return productStore.concat({[productId]: this.productStore[productId]});
+            productStore[productId] = this.productStore[productId];
           } else {
-            return productStore.concat(productId);
+            productStore[productId] = {};
           }
-        } else {
-          return productStore;
         }
-      }, []);
+        return productStore;
+      }, {});
+
+    const products = sendLongProductData ?
+      Object.values(mergedProductIds) : Object.keys(mergedProductIds);
 
     reply({
       status: SUCCESS_STATUS,
       error: "",
-      productIds: mergedProductIds
+      products
     });
   }
 }
