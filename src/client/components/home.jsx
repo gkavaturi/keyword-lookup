@@ -30,6 +30,7 @@ class Home extends React.Component {
       return this.props.products.map((product, index) => 
         <div className="product-container" key={index}>
           <h3 className="product-title">{product.name}</h3>
+          <p className="product-itemid">Item Id: {product.itemId}</p>
           <div className="product-desc group">
             <div className="product-image-wrapper product-desc-section">
               <img className="product-image" src="" alt={`${product.name}-image`} src={product.thumbnailImage}/>
@@ -61,7 +62,7 @@ class Home extends React.Component {
 
     return (
       <div className="home-container">
-        <form className="search-form" autoComplete="false" onSubmit={this.handleSubmit}>
+        <form className="search-form" autoComplete="off" onSubmit={this.handleSubmit}>
           <Nav {...this.props} />
           <div className="search-container">
             <input

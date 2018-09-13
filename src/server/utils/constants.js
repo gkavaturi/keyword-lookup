@@ -1,4 +1,5 @@
 export const API_TIMER_INVERVAL = 500;
+export const TIMEOUT_INTERVAL = 50000;
 export const ONE_DAY = 86400000;
 export const PRODUCT_API_URL = "http://api.walmartlabs.com/v1/items/";
 export const PRODUCT_API_KEY = "kjybrqfdgp3u4yv2qzcnjndj";

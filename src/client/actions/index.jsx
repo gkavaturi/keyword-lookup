@@ -8,7 +8,7 @@ export const UPDATE_PRODUCT_IDS = "UPDATE_PRODUCT_IDS";
 
 export const UPDATE_KEYWORD = "UPDATE_KEYWORD";
 
-const SEARCH_URL = "/api/get-product";
+const SEARCH_URL = "/api/get-products";
 const UPLOAD_URL = "/api/loadProductData";
 
 export const updateProductIds = productIds => {

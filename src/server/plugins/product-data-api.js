@@ -53,7 +53,7 @@ class ProductDataApi {
         }
       }, {
         method: "GET",
-        path: "/api/get-product",
+        path: "/api/get-products",
         handler: this.getProductsByKeyword,
         config: {
           bind: this,
