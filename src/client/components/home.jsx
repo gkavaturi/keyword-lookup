@@ -12,7 +12,6 @@ class Home extends React.Component {
   constructor(props) {
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleUpdateKeywords = this.handleUpdateKeywords.bind(this);
     this.state = {
       searchActive: false
     };
@@ -20,22 +19,18 @@ class Home extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    this.props.triggerSearchKeywords(this.props.keywords);
+    this.props.handleSearchKeywords(this.props.keywords);
     if (!this.state.searchActive) {
       this.setState({ searchActive: true });
     }
   }
 
-  handleUpdateKeywords(event) {
-    this.props.triggerUpdateKeywords(event.target.value);
-  }
-
   renderProducts() {
     if (Array.isArray(this.props.products) && this.props.products.length > 0) {
       return this.props.products.map((product, index) => 
-        <div className="product-container group" key={index}>
+        <div className="product-container" key={index}>
           <h3 className="product-title">{product.name}</h3>
-          <div className="product-desc">
+          <div className="product-desc group">
             <div className="product-image-wrapper product-desc-section">
               <img className="product-image" src="" alt={`${product.name}-image`} src={product.thumbnailImage}/>
             </div>
@@ -50,8 +45,9 @@ class Home extends React.Component {
 
   renderSubheading() {
     if (this.state.searchActive && this.props.products) {
+      const endS = this.props.products.length === 1 ? "" : "s";
       return (<div className="sub-heading">
-        <h4>Showing {this.props.products.length} results</h4>
+        <h4 className="sub-heading-text">Showing {this.props.products.length} result{endS} </h4>
       </div>);
     }
   }
@@ -62,7 +58,7 @@ class Home extends React.Component {
     if(!this.state.searchActive) {
       searchFieldClass = "search-field-large";
     }
-    
+
     return (
       <div className="home-container">
         <form className="search-form" autoComplete="false" onSubmit={this.handleSubmit}>
@@ -75,9 +71,7 @@ class Home extends React.Component {
               placeholder="Search using keywords"
               className={`search-field ${searchFieldClass}`}
               value={this.props.keywords}
-              onChange={event => {
-                  this.props.triggerUpdateKeywords(event.target.value);
-              }}
+              onChange={event => this.props.handleUpdateKeywords(event.target.value)}
             />
           </div>
         </form>
@@ -92,8 +86,8 @@ class Home extends React.Component {
 
 Home.propTypes = {
   keywords: PropTypes.string,
-  triggerUpdateKeywords: PropTypes.func.isRequired,
-  triggerSearchKeywords: PropTypes.func.isRequired
+  handleUpdateKeywords: PropTypes.func.isRequired,
+  handleSearchKeywords: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => {
@@ -103,8 +97,8 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  triggerUpdateKeywords: (keywords) => dispatch(setKeyWords(keywords)),
-  triggerSearchKeywords: (keywords) => dispatch(fetchProducts(keywords))
+  handleUpdateKeywords: (keywords) => dispatch(setKeyWords(keywords)),
+  handleSearchKeywords: (keywords) => dispatch(fetchProducts(keywords))
 });
 
 export default withRouter(connect(

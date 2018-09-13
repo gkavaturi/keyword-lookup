@@ -1,6 +1,22 @@
-
-body {
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
   margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
 }
 
 .group:before,
@@ -22,7 +38,7 @@ body {
 }
 
 .search-container, .product-store-container, .sub-heading {
-  margin: 35px;
+  margin: 0 35px 35px 35px;
 }
 
 .search-form {
@@ -44,24 +60,22 @@ body {
 }
 
 .search-field-small {
-  margin: 10px;
   padding: 10px;
   font-size: 24px;
 }
 
-.product-store-container {
-  border-width: 1px 0 0 0;
-}
-
-.product-store-container-border {
-  border-color: orange;
+.product-title {
+  padding-bottom: 10px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .product-container {
   width: 80%  ;
-  margin: 25px;
+  margin: 25px 25px 25px 0;
   border: 1px solid lightgrey;
-  border-width: 0 0 1px 0;
+  border-radius: 15px;
+  padding: 20px;
 }
 
 .product-desc-section {

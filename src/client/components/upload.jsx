@@ -2,57 +2,66 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Nav } from "./nav";
-import { inputTextarea } from "../actions";
-import custom from "../styles/custom.css"; // eslint-disable-line no-unused-vars
-import uploadStyle from "../styles/upload.css"; // eslint-disable-line no-unused-vars
+import { updateProductIds, uploadProducts } from "../actions";
+import "../styles/upload.css"; // eslint-disable-line no-unused-vars
 
-class Demo1 extends Component {
+class Upload extends Component {
   constructor(props) {
     super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
-    this.state = {
-      username: { value: "" },
-      textarea: { value: "" },
-      selectedOption: { value: "0-13" }
-    };
+  handleSubmit(event) {
+    event.preventDefault();
+    this.props.handleUploadProductIds(this.props.productIds);
+  }
+
+  uploadSuccessMsg() {
+    const msg = this.props.status === "Success" ? "Upload Success!!" : "";
+    return (<p className="upload-status">{msg}</p>)
   }
 
   render() {
     const { dispatch } = this.props;
     return (
-      <div className={"custom.container"}>
+      <div className="upload-container">
         <Nav {...this.props} />
-        <form>
-          <div className={"uploadStyle.container"}>
-            <textarea
-              placeholder="Enter comma or space separated product ids"
-              id="commentField"
-              className={"uploadStyle.product-input"}
-              value={this.props.textarea}
-              onChange={event => dispatch(inputTextarea(event.target.value))}
-            />
-            <input type="submit" value="Upload" />
-          </div>
+        <form className="upload-form" onSubmit={this.handleSubmit}>
+          {this.uploadSuccessMsg()}
+          <textarea
+            placeholder="Enter comma or space separated product ids"
+            id="commentField"
+            className={"product-input"}
+            value={this.props.productIds}
+            onChange={event => this.props.handleUpdateProductIds(event.target.value)}
+          />
+          <input className="btn" type="submit" value="Upload" />
         </form>
       </div>
     );
   }
 }
 
-Demo1.propTypes = {
-  username: PropTypes.string,
+Upload.propTypes = {
+  productIds: PropTypes.string,
   textarea: PropTypes.string,
   selectedOption: PropTypes.string,
-  dispatch: PropTypes.func.isRequired
+  handleUpdateProductIds: PropTypes.func.isRequired,
+  handleUploadProductIds: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => {
   return {
-    uploadProductIds: state.uploadProductIds
+    ...state.uploadStore
   };
 };
 
+const mapDispatchToProps = dispatch => ({
+  handleUpdateProductIds: (productIds) => dispatch(updateProductIds(productIds)),
+  handleUploadProductIds: (productIds) => dispatch(uploadProducts(productIds))
+});
+
 export default connect(
   mapStateToProps,
-  dispatch => ({ dispatch })
-)(Demo1);
+  mapDispatchToProps
+)(Upload);
